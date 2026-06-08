@@ -1,0 +1,24 @@
+# Secrets — NEVER commit (CLAUDE.md §7)
+.env
+.env.*
+*.key
+secrets.*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.python-version
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Data / outputs
+*.sqlite
+outputs/
