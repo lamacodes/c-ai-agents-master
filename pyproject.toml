@@ -1,0 +1,18 @@
+[project]
+name = "nomad-agents"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "crewai>=1.6.1",
+    "firecrawl-py>=4.12.0",
+    "openai>=2.14.0",
+    "python-dotenv>=1.2.1",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
+    "notebook>=7.5.1",
+]

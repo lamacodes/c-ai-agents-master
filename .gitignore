@@ -1,6 +1,7 @@
 # Secrets — NEVER commit (CLAUDE.md §7)
 .env
 .env.*
+!.env.example
 *.key
 secrets.*
 
@@ -22,3 +23,7 @@ venv/
 # Data / outputs
 *.sqlite
 outputs/
+
+# 개인 공부 폴더 (공개 제외)
+class/
+mission/
