@@ -7,8 +7,12 @@ requires-python = ">=3.13"
 dependencies = [
     "crewai>=1.6.1",
     "firecrawl-py>=4.12.0",
+    "graphviz>=0.21",
     "openai>=2.14.0",
     "python-dotenv>=1.2.1",
+    "streamlit>=1.58.0",
+    "openai-agents[viz]>=0.2.6",
+    "fpdf2>=2.8.7",
 ]
 
 [dependency-groups]
