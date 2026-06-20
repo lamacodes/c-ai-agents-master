@@ -13,6 +13,7 @@ dependencies = [
     "streamlit>=1.58.0",
     "openai-agents[viz]>=0.2.6",
     "fpdf2>=2.8.7",
+    "pathlib>=1.0.1",
 ]
 
 [dependency-groups]
