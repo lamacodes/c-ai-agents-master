@@ -2,7 +2,10 @@ from agents import Agent, RunContextWrapper
 from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
 # pyrefly: ignore [missing-import]
 from models import UserAccountContext
-
+# pyrefly: ignore [missing-import]
+from input_guardrails import off_topic_guardrail
+# pyrefly: ignore [missing-import]
+from output_guardrails import output_guardrail
 
 def dynamic_menu_agent_instructions(
     wrapper: RunContextWrapper[UserAccountContext],
@@ -32,12 +35,19 @@ def dynamic_menu_agent_instructions(
     4. 관련 옵션이 있다면 적극적으로 추천합니다 (예: "비건 파스타도 있는데 관심 있으신가요?")
 
     전환 규칙 (고객이 명시적으로 요청할 때만):
-    - "주문할게요", "주문하고 싶어요" 등 주문 의사를 직접 밝힐 때 → Order_Agent로 전환
-    - "예약하고 싶어요", "예약 부탁드려요" 등 예약 의사를 직접 밝힐 때 → Reservation_Agent로 전환
+    - "예약할게요", "예약하고 싶어요" 등 예약 의사를 직접 밝힐 때 → Reservation_Agent로 전환
+    - "주문할게요", "음식 주문하고 싶어요" 등 주문 의사를 직접 밝힐 때 → Order_Agent로 전환
+    - 불만 사항이 있을 경우 complaints_agent로 전환
     """
 
 
 menu_agent = Agent(
     name="Menu_Agent",
     instructions=dynamic_menu_agent_instructions,
+    input_guardrails=[
+        off_topic_guardrail,
+    ],
+    output_guardrails=[
+        output_guardrail,
+    ],
 )

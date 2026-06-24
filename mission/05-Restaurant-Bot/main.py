@@ -1,25 +1,36 @@
 """
-다음 에이전트를 갖춘 Restaurant Bot을 구축하세요:
-Triage Agent - 고객이 무엇을 원하는지 파악
-Menu Agent - 메뉴, 재료, 알레르기 관련 질문에 답변
-Order Agent - 주문을 받고 확인
-Reservation Agent - 테이블 예약 처리
+Restaurant Bot에 Guardrails와 Complaints Agent를 추가하세요!
+
+다음 기능을 추가하세요:
+
+Input Guardrails - 부적절하거나 주제에 벗어난 메시지 필터링
+Output Guardrails - 봇이 부적절한 응답을 하지 않도록 보장
+Complaints Agent - 불만족한 고객을 세심하게 처리하고 해결책 제시
 
 요구사항
-OpenAI Agents SDK의 handoff 기능을 사용하세요.
-Triage 에이전트가 요청에 맞는 전문 에이전트로 라우팅해야 합니다.
-각 에이전트는 역할에 맞는 명확한 지시사항을 가져야 합니다.
-UI에 handoff가 일어나는 것을 표시하세요 ("메뉴 전문가에게 연결합니다...").
+
+다음을 거부하는 Input Guardrails를 추가하세요:
+주제에 벗어난 질문 (레스토랑과 관련 없는 내용)
+부적절한 언어
+다음을 보장하는 Output Guardrails를 추가하세요:
+전문적이고 정중한 응답
+내부 정보를 노출하지 않음
+다음과 같은 Complaints Agent를 만드세요:
+고객의 불만을 공감하며 인정
+해결책 제시 (환불, 할인, 매니저 콜백)
+심각한 문제를 적절히 에스컬레이션
 
 예시 상호작용
-User: 예약을 하고 싶어
-Triage: 예약 담당에게 연결해 드릴게요...
-[Reservation Agent로 handoff]
-Reservation: 예약을 도와드리겠습니다! 인원수와 희망 날짜를 알려주세요.
+User: 음식이 너무 별로였고 직원도 불친절했어..
+Triage: 정말 죄송합니다. 도움을 드릴 수 있는 담당자에게 연결해 드릴게요...
+[Complaints Agent로 handoff]
+Complaints: 불쾌한 경험을 드려 진심으로 사과드립니다.
+이 상황을 바로잡고 싶은데요 - 다음 방문 시 50% 할인을 제공해 드리거나,
+원하시면 매니저가 직접 연락드리도록 하겠습니다. 어떤 방법이 좋으시겠어요?
 
-User: 아, 그전에 채식 메뉴 있는지 알려줘
-[Menu Agent로 handoff]
-Menu: 네! 여러 가지 채식 메뉴가 있습니다...
+User: 인생의 의미가 뭘까?
+Bot: [input guardrail 작동]
+Bot: 저는 레스토랑 관련 질문에 대해서만 도와드리고 있어요. 메뉴를 확인하거나, 예약하거나, 음식을 주문할 수 있어요.
 
 """
 
@@ -29,7 +40,7 @@ dotenv.load_dotenv()
 from openai import OpenAI
 import asyncio
 import streamlit as st
-from agents import Runner, SQLiteSession, InputGuardrailTripwireTriggered
+from agents import Runner, SQLiteSession, InputGuardrailTripwireTriggered, OutputGuardrailTripwireTriggered
 
 # pyrefly: ignore [missing-import]
 from models import UserAccountContext
@@ -108,7 +119,13 @@ async def run_agent(message):
                         response = ""
 
         except InputGuardrailTripwireTriggered:
-            st.write("I can't help you with that.")                        
+            st.session_state["text_placeholder"].empty()
+            st.write("죄송하지만 저는 레스토랑 관련 질문에 대해서만 도와드릴 수 있어요. 메뉴를 확인하거나, 예약하거나, 음식을 주문할 수 있어요.")
+
+        except OutputGuardrailTripwireTriggered:
+            st.session_state["text_placeholder"].empty()
+            st.write("죄송합니다. 해당 응답을 제공할 수 없습니다.")
+
 
 # message input
 message = st.chat_input(

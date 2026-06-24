@@ -2,6 +2,10 @@ from agents import Agent, RunContextWrapper
 from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
 # pyrefly: ignore [missing-import]
 from models import UserAccountContext
+# pyrefly: ignore [missing-import]
+from input_guardrails import off_topic_guardrail
+# pyrefly: ignore [missing-import]
+from output_guardrails import output_guardrail
 
 
 def dynamic_order_agent_instructions(
@@ -33,10 +37,18 @@ def dynamic_order_agent_instructions(
     전환 규칙 (고객이 명시적으로 요청할 때만):
     - "메뉴 알고 싶어요", "뭐가 있어요?" 등 메뉴 문의를 직접 밝힐 때 → Menu_Agent로 전환
     - "예약하고 싶어요", "예약 부탁드려요" 등 예약 의사를 직접 밝힐 때 → Reservation_Agent로 전환
+    - 고객이 직접 불만을 새로 제기할 때 → Complaints_Agent로 전환
+      단, 이미 Complaints_Agent에서 넘어온 경우에는 절대 다시 전환하지 마세요
     """
 
 
 order_agent = Agent(
     name="Order_Agent",
     instructions=dynamic_order_agent_instructions,
+    input_guardrails=[
+        off_topic_guardrail,
+    ],
+    output_guardrails=[
+        output_guardrail,
+    ],
 )
