@@ -1,8 +1,9 @@
 # K-Bap (mission/06-KBap) 배포용 의존성
-# Streamlit Community Cloud 는 리포 루트의 requirements.txt 를 설치한다.
+# Streamlit Community Cloud 가 리포 루트의 requirements.txt 를 설치한다.
 # 앱 메인 파일 경로: mission/06-KBap/main.py
-streamlit==1.58.0
-openai-agents==0.17.5
-openai==2.41.1
-python-dotenv==1.2.1
-pydantic==2.12.5
+#
+# 정확한 버전 핀은 Cloud 의 Python 버전과 충돌할 수 있어, 하한만 두고
+# 호환 버전을 Cloud 가 고르게 한다. (openai, pydantic 은 openai-agents 가 의존성으로 설치)
+streamlit>=1.40
+openai-agents>=0.17
+python-dotenv>=1.0
