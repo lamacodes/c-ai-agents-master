@@ -1,0 +1,13 @@
+# K-Bap — 모던 미니멀 테마
+# 화이트 배경 + 먹색(charcoal) 텍스트 + 따뜻한 웜그레이 보조색
+
+[theme]
+base = "light"
+primaryColor = "#2E2B28"            # 먹색 계열 포인트 (버튼/위젯 강조)
+backgroundColor = "#FFFFFF"         # 메인 배경: 화이트
+secondaryBackgroundColor = "#F4F2EE" # 사이드바/챗 버블: 따뜻한 웜그레이(한지 느낌)
+textColor = "#1F1D1B"               # 본문: 먹색
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"

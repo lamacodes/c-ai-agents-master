@@ -4,6 +4,7 @@
 !.env.example
 *.key
 secrets.*
+!**/secrets.toml.example
 
 # Python
 __pycache__/
@@ -22,6 +23,9 @@ venv/
 
 # Data / outputs
 *.sqlite
+*.db
+*.db-shm
+*.db-wal
 outputs/
 
 # 개인 공부 폴더 (공개 제외)
