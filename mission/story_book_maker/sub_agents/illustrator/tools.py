@@ -1,9 +1,14 @@
 import base64
 from google.genai import types
-from openai import OpenAI
+from openai import AsyncOpenAI
 from google.adk.tools.tool_context import ToolContext
 
-client = OpenAI()
+client = AsyncOpenAI()
+
+NEGATIVE_PROMPT = (
+    "No text, no words, no letters, no captions, no labels, no writing, "
+    "no signage in the image. Pure illustration only."
+)
 
 
 def build_consistency_prefix(art_style: str, character_bible: list) -> str:
@@ -36,49 +41,45 @@ def build_consistency_prefix(art_style: str, character_bible: list) -> str:
     return " ".join(parts)
 
 
-async def generate_images(tool_context: ToolContext):
+def make_generate_page_image_tool(page_number: int):
+    """특정 페이지 번호에 고정된 이미지 생성 tool을 만든다.
 
-    story_writer_output = tool_context.state.get("story_writer_output")
-    if not story_writer_output:
-        return {
-            "status": "error",
-            "error_message": "state에 story_writer_output이 없습니다. 먼저 StoryWriterAgent를 실행하세요.",
-        }
+    page_number를 클로저로 고정해 LLM이 페이지 번호를 잘못 지정할 위험을 없앤다
+    (tool_context 외에는 LLM이 채워야 할 인자가 없다).
+    """
 
-    scenes = story_writer_output.get("scenes", [])
-    art_style = story_writer_output.get("art_style", "")
-    character_bible = story_writer_output.get("character_bible", [])
+    async def generate_page_image(tool_context: ToolContext):
+        story_writer_output = tool_context.state.get("story_writer_output")
+        if not story_writer_output:
+            return {
+                "status": "error",
+                "error_message": "state에 story_writer_output이 없습니다. 먼저 StoryWriterAgent가 실행되어야 합니다.",
+            }
 
-    # 캐릭터 일관성: 모든 페이지에 동일한 화풍/캐릭터 외형을 prefix로 주입
-    consistency_prefix = build_consistency_prefix(art_style, character_bible)
+        scene = next(
+            (
+                s
+                for s in story_writer_output.get("scenes", [])
+                if s.get("page_number") == page_number
+            ),
+            None,
+        )
+        if not scene:
+            return {
+                "status": "error",
+                "error_message": f"story_writer_output에 page_number={page_number} scene이 없습니다.",
+            }
 
-    existing_artifacts = await tool_context.list_artifacts()
-
-    generated_images = []
-
-    for scene in scenes:
-        page_number = scene.get("page_number")
-        image_prompt = scene.get("image_prompt")
         filename = f"page_{page_number}_image.jpeg"
 
-        if filename in existing_artifacts:
-            generated_images.append(
-                {
-                    "page_number": page_number,
-                    "prompt": image_prompt[:100],
-                    "filename": filename,
-                }
-            )
-            continue
+        art_style = story_writer_output.get("art_style", "")
+        character_bible = story_writer_output.get("character_bible", [])
+        consistency_prefix = build_consistency_prefix(art_style, character_bible)
 
-        # gpt-image-1이 이미지 안에 글자/텍스트를 그려 넣지 않도록 고정 부정 지시어 추가
-        negative_prompt = (
-            "No text, no words, no letters, no captions, no labels, no writing, "
-            "no signage in the image. Pure illustration only."
-        )
-        full_prompt = f"{consistency_prefix} {image_prompt} {negative_prompt}".strip()
+        image_prompt = scene.get("image_prompt", "")
+        full_prompt = f"{consistency_prefix} {image_prompt} {NEGATIVE_PROMPT}".strip()
 
-        image = client.images.generate(
+        image = await client.images.generate(
             model="gpt-image-1",
             prompt=full_prompt,
             n=1,
@@ -103,16 +104,11 @@ async def generate_images(tool_context: ToolContext):
             artifact=artifact,
         )
 
-        generated_images.append(
-            {
-                "page_number": page_number,
-                "prompt": image_prompt[:100],
-                "filename": filename,
-            }
-        )
+        return {
+            "status": "complete",
+            "page_number": page_number,
+            "filename": filename,
+        }
 
-    return {
-        "total_images": len(generated_images),
-        "generated_images": generated_images,
-        "status": "complete",
-    }
+    generate_page_image.__name__ = f"generate_page_{page_number}_image"
+    return generate_page_image

@@ -44,5 +44,7 @@ class StoryWriterOutput(BaseModel):
         )
     )
     scenes: List[SceneOutput] = Field(
-        description="5페이지 분량의 장면 목록 (정확히 5개)"
+        min_length=5,
+        max_length=5,
+        description="5페이지 분량의 장면 목록 (정확히 5개, page_number는 1~5)",
     )
