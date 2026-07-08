@@ -31,3 +31,6 @@ outputs/
 # 개인 공부 폴더 (공개 제외)
 class/
 mission/archive/
+
+# 개인용 노트북 (공개 제외)
+*.private.ipynb
