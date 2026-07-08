@@ -1,7 +1,7 @@
 [project]
-name = "hello-langgraph"
+name = "artbuddy"
 version = "0.1.0"
-description = "Add your description here"
+description = "관람객 눈높이 맞춤 AI 미술 도슨트 튜터 (w05 Education Agent)"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
