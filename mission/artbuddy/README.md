@@ -11,16 +11,17 @@
 ## 핵심 기능
 
 - **이미지 입력 · 자동 분기** — 이미지를 비전 모델로 직접 보고, 유명 명화(A)인지 정보 없는 이미지(C)인지 판단해 트랙을 나눈다
-- **트랙별 해설 재료** — 명화는 작가·시대 맥락(A), 그 외 이미지는 색감·질감·무드(C)를 뽑는다
+- **툴 기반 사실 조회** — 명화는 Wikipedia 툴로 작가·제작연도·배경을 조회해 해설 근거를 확보한다 (미상 이미지는 색감·질감·무드를 비전으로 분석)
 - **눈높이 맞춤 해설** — 같은 그림도 관람객 유형에 따라 톤·어휘·깊이를 다르게 생성
 
 ## 그래프 구조
 
 ```
-START → router ─┬─(명화 A)→ analyze_masterpiece ─┐
-                └─(미상 C)→ analyze_mood ─────────┴→ generate_docent → END
+START → router ─┬─(명화 A)→ analyze_masterpiece ⇄ tools (Wikipedia) ─┐
+                └─(미상 C)→ analyze_mood ────────────────────────────┴→ generate_docent → END
 ```
 
-`router` 가 이미지를 보고 conditional edge 로 트랙 A/C 를 나눈 뒤 눈높이 해설로 합류한다.
+- `router` 는 이미지를 보고 conditional edge 로 트랙 A/C 를 나눈다
+- 트랙 A 는 `tools_condition` 으로 Wikipedia 툴을 필요한 만큼 돌린 뒤 해설로 합류한다
 
 구현은 [`artbuddy.ipynb`](./artbuddy.ipynb). 확장 예정 — 감상 후 이해 확인 퀴즈, 다중 이미지 서사 연결.
